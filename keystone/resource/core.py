@@ -1424,7 +1424,19 @@ class DomainConfigManager(manager.Manager):
         _assert_valid_update(domain_id, update_config, group, option)
 
         option_list = self._config_to_list(update_config)
-        self.update_config_options(domain_id, option_list)
+
+        def __make_option_list_for_debug(option_list):
+            options = []
+            for option in option_list:
+                new_option = option.copy()
+                if new_option['sensitive']:
+                    new_option['value'] = '<sensitive>'
+                options.append(new_option)
+            return options
+
+        debug_options = __make_option_list_for_debug(option_list)
+        LOG.debug('BB: new domain config: %s', debug_options)
+        #self.update_config_options(domain_id, option_list)
 
         self.get_config_with_sensitive_info.invalidate(self, domain_id)
         return self.get_config(domain_id)
